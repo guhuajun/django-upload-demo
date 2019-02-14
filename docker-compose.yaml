@@ -1,0 +1,27 @@
+version: "2.2"
+
+services: 
+  app:
+    image: greggu/uploaddemo-app:0.1
+    container_name: app
+    build: 
+      context: ./backend
+      dockerfile: Dockerfile
+    networks: 
+      demo:
+  nginx:
+    image: greggu/uploaddemo-nginx:0.1
+    container_name: nginx
+    build: 
+      dockerfile: Dockerfile
+      context: ./nginx
+    ports:
+      - "80:80"
+    environment: 
+      - BACKEND_CLUSTER_IP=app
+    networks: 
+      demo:
+    restart: always
+
+networks:
+  demo:
