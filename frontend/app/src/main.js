@@ -9,6 +9,9 @@ import 'iview/dist/styles/iview.css';
 Vue.use(VueRouter);
 Vue.use(iView);
 
+// https://github.com/vqlai/vqlai.github.io/blob/master/src/main.js
+Vue.prototype.$util = Util;
+
 // 路由配置
 const RouterConfig = {
     mode: 'history',
