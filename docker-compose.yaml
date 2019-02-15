@@ -1,24 +1,24 @@
-version: "2.2"
+version: "3"
 
 services: 
   backend:
-    image: greggu/uploaddemo-backend:0.1
-    container_name: upload-be
+    image: greggu/uploaddemo-backend:0.5
+    container_name: backend
     build: 
       context: ./backend
       dockerfile: Dockerfile
     networks: 
       demo:
   frontend:
-    image: greggu/uploaddemo-frontend:0.1
-    container_name: upload-fe
+    image: greggu/uploaddemo-frontend:0.5
+    container_name: frontend
     build: 
       dockerfile: Dockerfile
       context: ./frontend
     ports:
       - "80:80"
     environment: 
-      - BACKEND_CLUSTER_IP=upload-be
+      - BACKEND_CLUSTER_IP=backend
     networks: 
       demo:
     restart: always

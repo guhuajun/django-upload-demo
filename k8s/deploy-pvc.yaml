@@ -1,0 +1,130 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    io.kompose.service: frontend
+  name: frontend
+spec:
+  ports:
+  - name: "frontend"
+    port: 80
+    targetPort: 80
+  selector:
+    io.kompose.service: frontend
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    io.kompose.service: backend
+  name: backend
+spec:
+  ports:
+  - name: "backend"
+    port: 8000
+    targetPort: 8000
+  selector:
+    io.kompose.service: backend
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  labels:
+    io.kompose.service: backend
+  name: backend
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        io.kompose.service: backend
+    spec:
+      volumes:
+        - name: volume-edcb2d40
+          persistentVolumeClaim:
+            claimName: upload-media
+        - name: volume-8a5cb9ed
+          persistentVolumeClaim:
+            claimName: upload-db
+      containers:
+      - image: 192.168.0.201/demo/uploaddemo-backend:0.5
+        name: backend
+        resources:
+          limits:
+            cpu: 100m
+            memory: "256Mi"
+          requests:
+            cpu: 100m
+            memory: "256Mi"
+        volumeMounts:
+          - name: volume-edcb2d40
+            mountPath: /app/media/
+          - name: volume-8a5cb9ed
+            mountPath: /app/db/
+        readinessProbe:
+          httpGet:
+            path: /api/
+            port: 8000
+            scheme: HTTP
+          timeoutSeconds: 1
+          periodSeconds: 10
+          successThreshold: 1
+          failureThreshold: 3
+        lifecycle:
+          postStart:
+            exec:
+              command:
+                - python
+                - manage.py
+                - migrate
+      restartPolicy: Always
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  labels:
+    io.kompose.service: frontend
+  name: frontend
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        io.kompose.service: frontend
+    spec:
+      containers:
+      - env:
+        - name: BACKEND_CLUSTER_IP
+          value: backend
+        image: 192.168.0.201/demo/uploaddemo-frontend:0.5
+        name: frontend
+        ports:
+        - containerPort: 80
+        resources:
+          limits:
+            cpu: 100m
+            memory: "256Mi"
+          requests:
+            cpu: 100m
+            memory: "256Mi"
+      restartPolicy: Always
+---
+kind: Ingress
+apiVersion: extensions/v1beta1
+metadata:
+  name: upload
+  namespace: default
+  labels:
+    dce.daocloud.io/app: upload
+spec:
+  backend:
+    serviceName: frontend
+    servicePort: 80
+  rules:
+    - host: demo.corp.contoso.com
+      http:
+        paths:
+          - path: /
+            backend:
+              serviceName: frontend
+              servicePort: 80

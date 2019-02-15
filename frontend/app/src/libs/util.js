@@ -8,7 +8,7 @@ util.title = function (title) {
     window.document.title = title;
 };
 
-const ajaxUrl = 'http://upload-be:8000';
+const ajaxUrl = 'http://demo.corp.contoso.com';
 
 util.ajax = axios.create({
     baseURL: ajaxUrl,

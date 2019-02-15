@@ -20,6 +20,11 @@
 .demo-carousel {
   max-height: 250px;
 }
+.demo-carousel-img {
+  margin-left: auto;
+  margin-right: auto;
+  display: block;
+}
 </style>
 <template>
   <div class="layout">
@@ -48,7 +53,7 @@
             <Carousel v-model="value1" loop>
               <CarouselItem v-for="item in items" :key="item.photo">
                 <div class="demo-carousel">
-                  <img :src="item.photo">
+                  <img class="demo-carousel-img" :src="item.photo">
                 </div>
               </CarouselItem>
             </Carousel>
